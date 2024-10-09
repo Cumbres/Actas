@@ -1,0 +1,1010 @@
+<html><head><base href="https://condominio-cumbres-quilpué.cl/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Actas - Condominio Cumbres de Quilpué</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.0/mammoth.browser.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --background-color: #f5f7fa;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        main {
+            margin-top: 80px;
+        }
+
+        h1 {
+            color: var(--secondary-color);
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            display: block;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .form-section {
+            padding: 30px;
+            width: 100%;
+        }
+
+        .draft-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .draft-buttons button {
+            margin-left: 10px;
+            padding: 8px 16px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .draft-buttons button:hover {
+            background-color: #34495e;
+        }
+
+        form {
+            display: grid;
+            gap: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        #accionesTareasContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tarea-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .tarea-descripcion {
+            flex: 2;
+        }
+
+        .tarea-fecha {
+            flex: 1;
+        }
+
+        #agregarTarea {
+            margin-top: 10px;
+        }
+
+        .remove-tarea {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .remove-tarea:hover {
+            background-color: #c0392b;
+        }
+
+        .pdf-preview-section {
+            margin-top: 50px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .pdf-preview-section h2 {
+            color: var(--secondary-color);
+            text-align: center;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        #actaPDF {
+            width: 210mm;
+            padding: 20mm;
+            margin: 10mm auto;
+            border: 1px #D3D3D3 solid;
+            border-radius: 5px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            font-size: 11pt;
+            line-height: 1.5;
+        }
+
+        #actaPDF::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background-image: url('https://i.ibb.co/WpJWzrV/image.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        #actaPDF h2 {
+            font-size: 18pt;
+            margin-bottom: 15px;
+        }
+
+        #actaPDF h3 {
+            font-size: 14pt;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        #actaPDF p {
+            margin-bottom: 10px;
+        }
+
+        #actaPDF table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+
+        #actaPDF th, #actaPDF td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        #actaPDF th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        #temasPDF th:first-child {
+            width: 10%;
+        }
+
+        #actaPDF .acta-apertura {
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .download-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .download-btn, .calendar-btn {
+            flex: 1 1 calc(33.333% - 10px);
+            min-width: 200px;
+            max-width: 300px;
+            margin: 0;
+            padding: 15px 10px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .download-btn, .calendar-btn {
+                flex: 1 1 100%;
+                max-width: none;
+            }
+        }
+
+        footer {
+            background-color: var(--secondary-color);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            header {
+                position: static;
+            }
+
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+                padding: 0;
+            }
+
+            nav li {
+                margin: 10px 0;
+            }
+
+            main {
+                margin-top: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .panel {
+                padding: 15px;
+            }
+
+            .form-section {
+                padding: 15px;
+            }
+
+            input, textarea, select {
+                font-size: 14px;
+            }
+
+            #actaPDF {
+                width: 100%;
+                padding: 10px;
+                margin: 0;
+                font-size: 10pt;
+            }
+
+            .acta-content {
+                flex-direction: column;
+            }
+
+            .acta-details, .acta-participants {
+                width: 100%;
+            }
+
+            #actaPDF table {
+                font-size: 10pt;
+            }
+
+            #actaPDF .signatures {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #actaPDF .signature-line {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            form {
+                display: flex;
+                flex-direction: column;
+            }
+
+            label {
+                margin-top: 10px;
+            }
+
+            #actaPDF {
+                overflow-x: auto;
+            }
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading::after {
+            content: "";
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #actaPDF .acta-participants table {
+            width: 100%;
+        }
+
+        #actaPDF .acta-participants th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        #actaPDF .acta-participants td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        #actaPDF .acta-participants ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        #actaPDF .acta-participants li {
+            margin-bottom: 5px;
+        }
+
+        #accionesTareasPDF {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        #accionesTareasPDF li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+        }
+
+        #actaPDF .acta-apertura {
+            margin-bottom: 20px;
+            text-align: justify;
+            font-style: italic;
+        }
+
+        #actaPDF .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            page-break-inside: avoid;
+        }
+
+        #actaPDF .signature-line {
+            text-align: center;
+            width: 45%;
+        }
+
+        #actaPDF .signature-line p:first-child {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            #actaPDF .signatures {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #actaPDF .signature-line {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Condominio Cumbres de Quilpué</div>
+            <ul>
+                <li><a href="#generator">Generador de Actas</a></li>
+                <li><a href="#preview">Vista Previa</a></li>
+                <li><a href="#download">Descargar</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1>Generador de Actas - Condominio Cumbres de Quilpué</h1>
+            <div class="panel">
+                <div class="form-section">
+                    <div class="draft-buttons">
+                        <button type="button" id="saveDraft">Guardar Borrador</button>
+                        <button type="button" id="loadDraft">Cargar Borrador</button>
+                    </div>
+                    <form id="actaForm">
+                        <label for="fecha">Fecha:</label>
+                        <input type="date" id="fecha" required>
+
+                        <label for="lugar">Lugar:</label>
+                        <input type="text" id="lugar" required>
+
+                        <label for="hora">Hora de inicio:</label>
+                        <input type="time" id="hora" required>
+                        
+                        <label for="horaFin">Hora de término:</label>
+                        <input type="time" id="horaFin" required>
+
+                        <label for="objetivo">Objetivo:</label>
+                        <input type="text" id="objetivo" required>
+
+                        <label for="participantes">Participantes:</label>
+                        <select id="participantes" multiple required>
+                            <optgroup label="Comité de Administración">
+                                <option value="Carlos Miranda">Carlos Miranda</option>
+                                <option value="Sami Donoso">Sami Donoso</option>
+                                <option value="Guillermo Rivas">Guillermo Rivas</option>
+                            </optgroup>
+                            <optgroup label="Administración del condominio">
+                                <option value="Diego Acevedo">Diego Acevedo</option>
+                                <option value="Nelson Villalobos">Nelson Villalobos</option>
+                            </optgroup>
+                        </select>
+
+                        <label for="participantesExternos">Participantes externos:</label>
+                        <input type="text" id="participantesExternos" placeholder="Ingrese nombres separados por comas">
+
+                        <label for="accionesTareas">Acciones y Tareas:</label>
+                        <div id="accionesTareasContainer">
+                            <div class="tarea-row">
+                                <input type="text" class="tarea-descripcion" placeholder="Descripción de la tarea">
+                                <input type="date" class="tarea-fecha">
+                                <button type="button" class="remove-tarea" aria-label="Eliminar tarea">&#8722;</button>
+                            </div>
+                        </div>
+                        <button type="button" id="agregarTarea">Agregar Tarea</button>
+
+                        <label for="temas">Temas tratados:</label>
+                        <textarea id="temas" rows="5" placeholder="Ingrese los temas tratados, separados por números (1., 2., 3., etc.)" required></textarea>
+
+                        <button type="submit">Generar Acta</button>
+                    </form>
+                </div>
+            </div>
+            <div class="pdf-preview-section">
+                <h2>Vista Previa del PDF</h2>
+                <div id="actaPDF">
+                    <h2>
+                        <div class="acta-title">ACTA DE REUNIÓN</div>
+                        <div class="condominio-name">CONDOMINIO CUMBRES DE QUILPUÉ</div>
+                    </h2>
+                    <p><strong>Código de Acta:</strong> <span id="codigoActaPDF"></span></p>
+                    <div class="acta-content">
+                        <div class="acta-details">
+                            <table>
+                                <tr><th>Fecha</th><td id="fechaPDF"></td></tr>
+                                <tr><th>Lugar</th><td id="lugarPDF"></td></tr>
+                                <tr><th>Hora de inicio</th><td id="horaPDF"></td></tr>
+                                <tr><th>Hora de término</th><td id="horaFinPDF"></td></tr>
+                                <tr><th>Objetivo</th><td id="objetivoPDF"></td></tr>
+                            </table>
+                        </div>
+                        <div class="acta-participants">
+                            <table>
+                                <tr><th>Participantes</th></tr>
+                                <tr><td><ul id="participantesPDF"></ul></td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <p id="actaApertura" class="acta-apertura"></p>
+                    <h3>Temas tratados:</h3>
+                    <table id="temasPDF">
+                        <thead>
+                            <tr>
+                                <th>Nº</th>
+                                <th>Tema</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <h3>Acciones y Tareas:</h3>
+                    <ul id="accionesTareasPDF"></ul>
+                    <p>Esta acta se levanta en conformidad con los temas tratados y acuerdos alcanzados en la reunión, siendo las <span id="horaFinCierre"></span> horas.</p>
+                    <div class="signatures">
+                        <div class="signature-line">
+                            <p>____________________________</p>
+                            <p>Firma del Secretario</p>
+                        </div>
+                        <div class="signature-line">
+                            <p>____________________________</p>
+                            <p>Firma del Presidente</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="download-buttons">
+                    <button onclick="descargarImagenActa()" class="download-btn">Descargar Imagen del Acta</button>
+                    <button onclick="descargarTextoActa()" class="download-btn">Descargar Acta en HTML</button>
+                    <button onclick="generarInvitacionesCalendario()" class="calendar-btn">Generar Invitaciones de Calendario</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Condominio Cumbres de Quilpué. Todos los derechos reservados.</p>
+    </footer>
+
+    <div class="loading" id="loadingIndicator"></div>
+
+    <script>
+        document.getElementById('actaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generarActa();
+        });
+
+        document.getElementById('agregarTarea').addEventListener('click', agregarTarea);
+
+        function agregarTarea() {
+            const container = document.getElementById('accionesTareasContainer');
+            const nuevaTarea = document.createElement('div');
+            nuevaTarea.className = 'tarea-row';
+            nuevaTarea.innerHTML = `
+                <input type="text" class="tarea-descripcion" placeholder="Descripción de la tarea">
+                <input type="date" class="tarea-fecha">
+                <button type="button" class="remove-tarea" aria-label="Eliminar tarea">&#8722;</button>
+            `;
+            container.appendChild(nuevaTarea);
+
+            nuevaTarea.querySelector('.remove-tarea').addEventListener('click', function() {
+                container.removeChild(nuevaTarea);
+            });
+        }
+
+        function saveDraft() {
+            const formData = {
+                fecha: document.getElementById('fecha').value,
+                lugar: document.getElementById('lugar').value,
+                hora: document.getElementById('hora').value,
+                horaFin: document.getElementById('horaFin').value,
+                objetivo: document.getElementById('objetivo').value,
+                participantes: Array.from(document.getElementById('participantes').selectedOptions).map(option => option.value),
+                participantesExternos: document.getElementById('participantesExternos').value,
+                temas: document.getElementById('temas').value,
+                accionesTareas: Array.from(document.querySelectorAll('.tarea-row')).map(row => ({
+                    descripcion: row.querySelector('.tarea-descripcion').value,
+                    fecha: row.querySelector('.tarea-fecha').value
+                }))
+            };
+            localStorage.setItem('actaDraft', JSON.stringify(formData));
+            alert('Borrador guardado exitosamente');
+        }
+
+        function loadDraft() {
+            const savedDraft = localStorage.getItem('actaDraft');
+            if (savedDraft) {
+                const formData = JSON.parse(savedDraft);
+                document.getElementById('fecha').value = formData.fecha;
+                document.getElementById('lugar').value = formData.lugar;
+                document.getElementById('hora').value = formData.hora;
+                document.getElementById('horaFin').value = formData.horaFin;
+                document.getElementById('objetivo').value = formData.objetivo;
+                
+                const participantesSelect = document.getElementById('participantes');
+                formData.participantes.forEach(participante => {
+                    for (let option of participantesSelect.options) {
+                        if (option.value === participante) {
+                            option.selected = true;
+                            break;
+                        }
+                    }
+                });
+                
+                document.getElementById('participantesExternos').value = formData.participantesExternos;
+                document.getElementById('temas').value = formData.temas;
+                
+                const accionesTareasContainer = document.getElementById('accionesTareasContainer');
+                accionesTareasContainer.innerHTML = '';
+                formData.accionesTareas.forEach(tarea => {
+                    const nuevaTarea = document.createElement('div');
+                    nuevaTarea.className = 'tarea-row';
+                    nuevaTarea.innerHTML = `
+                        <input type="text" class="tarea-descripcion" value="${tarea.descripcion}" placeholder="Descripción de la tarea">
+                        <input type="date" class="tarea-fecha" value="${tarea.fecha}">
+                        <button type="button" class="remove-tarea" aria-label="Eliminar tarea">&#8722;</button>
+                    `;
+                    accionesTareasContainer.appendChild(nuevaTarea);
+                    nuevaTarea.querySelector('.remove-tarea').addEventListener('click', function() {
+                        accionesTareasContainer.removeChild(nuevaTarea);
+                    });
+                });
+                
+                alert('Borrador cargado exitosamente');
+            } else {
+                alert('No se encontró ningún borrador guardado');
+            }
+        }
+
+        document.getElementById('saveDraft').addEventListener('click', saveDraft);
+        document.getElementById('loadDraft').addEventListener('click', loadDraft);
+
+        function generarActa() {
+            const fecha = document.getElementById('fecha').value;
+            const lugar = document.getElementById('lugar').value;
+            const hora = document.getElementById('hora').value;
+            const horaFin = document.getElementById('horaFin').value;
+            const objetivo = document.getElementById('objetivo').value;
+            const participantes = Array.from(document.getElementById('participantes').selectedOptions).map(option => option.value);
+            const participantesExternos = document.getElementById('participantesExternos').value.split(',').map(p => p.trim()).filter(p => p);
+            const allParticipants = [...participantes, ...participantesExternos];
+            const fechaObj = new Date(fecha);
+            const codigoActa = `${fechaObj.getFullYear()}${String(fechaObj.getDate()).padStart(2, '0')}${String(fechaObj.getMonth() + 1).padStart(2, '0')}`;
+
+            const temasInput = document.getElementById('temas').value;
+            const temas = procesarTemas(temasInput);
+
+            const accionesTareas = procesarAccionesTareas();
+
+            document.getElementById('codigoActaPDF').textContent = codigoActa;
+            document.getElementById('fechaPDF').textContent = formatearFecha(fecha);
+            document.getElementById('lugarPDF').textContent = lugar;
+            document.getElementById('horaPDF').textContent = hora;
+            document.getElementById('horaFinPDF').textContent = horaFin;
+            document.getElementById('objetivoPDF').textContent = objetivo;
+            document.getElementById('participantesPDF').innerHTML = allParticipants.map(p => `<li>${p}</li>`).join('');
+
+            const temasTableBody = document.querySelector('#temasPDF tbody');
+            temasTableBody.innerHTML = temas.map((tema, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${tema.tema}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('accionesTareasPDF').innerHTML = accionesTareas.map(tarea => `
+                <li>
+                    ${tarea.descripcion}
+                    <br>Fecha de ejecución: ${formatearFechaCorta(tarea.fecha)}
+                </li>
+            `).join('');
+
+            document.getElementById('horaFinCierre').textContent = horaFin;
+
+            document.getElementById('actaApertura').textContent = formatearApertura(lugar, hora);
+
+            const actaPreviewContent = `
+CONDOMINIO CUMBRES DE QUILPUÉ
+ACTA DE REUNIÓN
+
+Código de Acta: ${codigoActa}
+
+Fecha: ${formatearFecha(fecha)}
+Lugar: ${lugar}
+Hora de inicio: ${hora}
+Hora de término: ${horaFin}
+Objetivo: ${objetivo}
+
+Participantes:
+${formatearParticipantes(allParticipants)}
+
+Temas tratados:
+${formatearTemas(temas)}
+
+Acciones y Tareas:
+${formatearAccionesTareas(accionesTareas)}
+
+Esta acta se levanta en conformidad con los temas tratados y acuerdos alcanzados en la reunión, siendo las ${horaFin} horas.
+
+Firma del Secretario: ______________________
+
+Firma del Presidente: ______________________
+`;
+
+        }
+
+        function procesarAccionesTareas() {
+            const tareas = [];
+            document.querySelectorAll('.tarea-row').forEach(row => {
+                const descripcion = row.querySelector('.tarea-descripcion').value;
+                const fecha = row.querySelector('.tarea-fecha').value;
+                if (descripcion && fecha) {
+                    tareas.push({ descripcion, fecha });
+                }
+            });
+            return tareas;
+        }
+
+        function formatearApertura(lugar, horaInicio) {
+            return `En ${lugar}, siendo las ${horaInicio} horas, se da comienzo a la reunión del Condominio Cumbres de Quilpué, convocada según las formalidades establecidas. La sesión se inicia con el propósito de abordar los puntos señalados en la agenda, procediendo a tratar los siguientes temas:`;
+        }
+
+        function procesarTemas(temasInput) {
+            const temasArray = temasInput.split(/\d+\./).filter(tema => tema.trim() !== '');
+            return temasArray.map(tema => ({
+                tema: mejorarTema(tema.trim())
+            }));
+        }
+
+        function mejorarTema(tema) {
+            return tema.charAt(0).toUpperCase() + tema.slice(1);
+        }
+
+        function formatearFecha(fecha) {
+            const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(fecha).toLocaleDateString('es-ES', opciones);
+        }
+
+        function formatearFechaCorta(fecha) {
+            const [year, month, day] = fecha.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        function formatearParticipantes(participantes) {
+            return participantes.map(p => `- ${p}`).join('\n');
+        }
+
+        function formatearTemas(temas) {
+            return temas.map((tema, index) => `${index + 1}. ${tema.tema}`).join('\n\n');
+        }
+
+        function formatearAccionesTareas(accionesTareas) {
+            return accionesTareas.map(tarea => {
+                const fechaFormateada = tarea.fecha ? formatearFechaCorta(tarea.fecha) : '';
+                return `${tarea.descripcion} - ${fechaFormateada}`;
+            }).join('\n');
+        }
+
+        function descargarArchivoCal(contenido, nombreArchivo) {
+            const elemento = document.createElement('a');
+            elemento.setAttribute('href', 'data:text/calendar;charset=utf-8,' + encodeURIComponent(contenido));
+            elemento.setAttribute('download', nombreArchivo);
+            elemento.style.display = 'none';
+            document.body.appendChild(elemento);
+            elemento.click();
+            document.body.removeChild(elemento);
+        }
+
+        function crearEventoCalendario(descripcion, fecha) {
+            const ahora = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            const [day, month, year] = fecha.split('/');
+            const fechaEvento = new Date(`${year}-${month}-${day}`).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            
+            return `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:${fechaEvento}
+DTEND:${fechaEvento}
+SUMMARY:${descripcion}
+DESCRIPTION:Tarea del Condominio Cumbres de Quilpué
+DTSTAMP:${ahora}
+END:VEVENT
+END:VCALENDAR`;
+        }
+
+        function generarInvitacionesCalendario() {
+            const accionesTareas = procesarAccionesTareas();
+            accionesTareas.forEach(tarea => {
+                const evento = crearEventoCalendario(tarea.descripcion, tarea.fecha);
+                descargarArchivoCal(evento, `Tarea - ${tarea.descripcion}.ics`);
+            });
+        }
+
+        function descargarImagenActa() {
+            document.getElementById('loadingIndicator').style.display = 'flex';
+            const pdfContent = document.getElementById('actaPDF');
+
+            html2canvas(pdfContent, {
+                scale: 2,
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = imgData;
+                const codigoActa = document.getElementById('codigoActaPDF').textContent;
+                link.download = `Acta de reunión ${codigoActa}.png`;
+                link.click();
+                document.getElementById('loadingIndicator').style.display = 'none';
+            });
+        }
+
+        function descargarTextoActa() {
+            const actaPDF = document.getElementById('actaPDF');
+            const blob = htmlToStandaloneHtml(actaPDF.innerHTML);
+            const url = URL.createObjectURL(blob);
+            const codigoActa = document.getElementById('codigoActaPDF').textContent;
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Acta de reunión ${codigoActa}.html`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function htmlToStandaloneHtml(html) {
+            const wrappedHtml = `
+                <!DOCTYPE html>
+                <html lang="es">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Acta de Reunión - Condominio Cumbres de Quilpué</title>
+                        <style>
+                            body { 
+                                font-family: Arial, sans-serif; 
+                                line-height: 1.6; 
+                                padding: 20px; 
+                                max-width: 800px; 
+                                margin: 0 auto; 
+                            }
+                            table { 
+                                border-collapse: collapse; 
+                                width: 100%; 
+                                margin-bottom: 20px;
+                            }
+                            th, td { 
+                                border: 1px solid #ddd; 
+                                padding: 8px; 
+                                text-align: left;
+                            }
+                            th { 
+                                background-color: #f2f2f2; 
+                            }
+                            h1, h2, h3 { 
+                                color: #2c3e50; 
+                            }
+                            .signatures {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-top: 30px;
+                            }
+                            .signature-line {
+                                text-align: center;
+                                width: 45%;
+                            }
+                            @media (max-width: 600px) {
+                                body { 
+                                    padding: 10px; 
+                                }
+                                table { 
+                                    font-size: 14px; 
+                                }
+                                .signatures {
+                                    flex-direction: column;
+                                }
+                                .signature-line {
+                                    width: 100%;
+                                    margin-bottom: 20px;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>${html}</body>
+                </html>
+            `;
+            const blob = new Blob([wrappedHtml], { type: 'text/html;charset=utf-8' });
+            return blob;
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        gsap.from(".panel", {duration: 1, opacity: 0, y: 50, stagger: 0.2});
+        gsap.from("h1", {duration: 1, opacity: 0, y: -50});
+        gsap.from("nav", {duration: 1, opacity: 0, y: -20});
+    </script>
+</body>
+</html>
